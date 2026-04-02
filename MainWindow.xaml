@@ -1,0 +1,48 @@
+﻿<Window
+    x:Class="PDFConvertJPG.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:PDFConvertJPG"
+    mc:Ignorable="d"
+    Title="PDF 轉 JPG" Height="600" Width="500">
+    <StackPanel Margin="20">
+        <TextBlock Text="PDF 批次轉檔 (自動偵測原始尺寸)" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <TextBlock Text="1. 選擇 PDF 檔案"/>
+        <StackPanel Margin="20" Orientation="Horizontal">
+            <Button Content="選取檔案" Click="BtnSelectFiles_Click" Margin="10"/>
+            <Button Content="清除檔案" Click="BtnClearFiles_Click" Margin="10"/>
+        </StackPanel>
+
+        <!-- 綁定到 ViewModel.SelectedFiles，並顯示 Checkbox -->
+        <ListBox x:Name="FileList" Height="150" Margin="0,5" ItemsSource="{Binding SelectedFiles}" SelectionMode="Extended">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel Margin="2">
+                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" VerticalAlignment="Center" Margin="4"/>
+                        <TextBlock Text="{Binding FilePath}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="刪除所選" Click="MenuDeleteSelected_Click"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
+
+        <TextBlock Text="2. 選擇存檔根目錄" Margin="0,10,0,0"/>
+        <DockPanel>
+            <Button Content="瀏覽..." Click="BtnSelectPath_Click" DockPanel.Dock="Right"/>
+            <TextBox x:Name="TxtOutputPath" IsReadOnly="True" Margin="0,0,5,0"/>
+        </DockPanel>
+
+        <TextBlock Text="說明：系統將自動依據 PDF 每頁之原始長寬進行轉檔，不進行任何縮放。" 
+                   Foreground="Gray" TextWrapping="Wrap" Margin="0,15,0,0"/>
+
+        <Button Content="開始轉換" Click="BtnConvert_Click" Height="50" Margin="0,20" 
+                Background="#007ACC" Foreground="White" FontWeight="Bold"/>
+    </StackPanel>
+</Window>
