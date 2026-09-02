@@ -41,8 +41,13 @@ namespace PDFConvertJPG.ViewModels
                 .Select(f => f.FilePath)
                 .ToList();
 
-            if (toProcess.Count == 0 || string.IsNullOrEmpty(OutputPath))
+            if (toProcess.Count == 0 )
                 return;
+
+            if (string.IsNullOrEmpty(OutputPath))
+            {
+                OutputPath = Path.GetDirectoryName(toProcess[0]) ?? "";
+            }
 
             if (IsPdfToJpg)
             {

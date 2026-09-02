@@ -82,7 +82,7 @@ namespace PDFConvertJPG
             if ( dialog.ShowDialog() == true)
             {
                 _vm.OutputPath = dialog.FolderName;
-                TxtOutputPath.Text = _vm.OutputPath;
+                //TxtOutputPath.Text = _vm.OutputPath;
             }
         }
 

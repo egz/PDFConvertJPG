@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:PDFConvertJPG"
     mc:Ignorable="d"
-    Title="PDF 轉 JPG" Height="600" Width="500">
+    Title="PDF / JPG 轉換工具" Height="600" Width="500">
     <StackPanel Margin="20">
         <TextBlock Text="PDF / JPG 轉換工具"
            FontSize="16"
@@ -51,10 +51,10 @@
         <TextBlock Text="2. 選擇存檔根目錄" Margin="0,10,0,0"/>
         <DockPanel>
             <Button Content="瀏覽..." Click="BtnSelectPath_Click" DockPanel.Dock="Right"/>
-            <TextBox x:Name="TxtOutputPath" IsReadOnly="True" Margin="0,0,5,0"/>
+            <TextBox x:Name="TxtOutputPath"  Text="{Binding OutputPath}" IsReadOnly="False" Margin="0,0,5,0"/>
         </DockPanel>
 
-        <TextBlock Text="說明：系統將自動依據 PDF 每頁之原始長寬進行轉檔，不進行任何縮放。" 
+        <TextBlock Text="說明：PDF → JPG 會依原始頁面尺寸輸出；JPG → PDF 會依圖片原始尺寸建立 PDF 頁面。" 
                    Foreground="Gray" TextWrapping="Wrap" Margin="0,15,0,0"/>
 
         <Button Content="開始轉換" Click="BtnConvert_Click" Height="50" Margin="0,20" 
