@@ -31,8 +31,16 @@ namespace PDFConvertJPG
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Multiselect = true,
-                Filter = "PDF Files (*.pdf)|*.pdf"
+              
             };
+            if (RdoPdfToJpg.IsChecked == true)
+            {
+                openFileDialog.Filter = "PDF Files (*.pdf)|*.pdf";
+            }
+            else
+            {
+                openFileDialog.Filter = "JPG Files (*.jpg;*.jpeg)|*.jpg;*.jpeg";
+            }
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -46,6 +54,15 @@ namespace PDFConvertJPG
                     }
                 }
             }
+        }
+
+        private void ConversionMode_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_vm == null)
+                return;
+            _vm.IsPdfToJpg = RdoPdfToJpg.IsChecked == true;
+
+            _vm.SelectedFiles.Clear();
         }
 
         private void BtnClearFiles_Click(object sender, RoutedEventArgs e)

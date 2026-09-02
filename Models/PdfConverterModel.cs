@@ -11,7 +11,7 @@ namespace PDFConvertJPG.Models
     public class PdfConverterModel
     {
 
-        public void ConvertPdfToJpg(string pdfPath, string outputBaseDir, string folderName)
+        public void ConvertPdfToJpg(string pdfPath, string outputBaseDir, string folderName,int targetDpi = 150)
         {
             string targetFolder = Path.Combine(outputBaseDir, folderName);
             if (!Directory.Exists(targetFolder)) Directory.CreateDirectory(targetFolder);
@@ -27,14 +27,18 @@ namespace PDFConvertJPG.Models
 
                     // 直接以原始寬高進行渲染，確保不失真、不變形
                     // 第二個參數為 DPI，通常 96 是標準，若要更清晰可設為 150 或 300
-                    int renderWidth = (int)pageSize.Width;
-                    int renderHeight = (int)pageSize.Height;
+                    // 計算縮放比例：PDF 預設是 72 DPI
+                    // 如果 targetDpi 是 300，縮放倍率就是 300 / 72 ≈ 4.16
+                    float scale = targetDpi / 72f;
+                    int renderWidth = (int)(pageSize.Width * scale);
+                    int renderHeight = (int)(pageSize.Height * scale);
 
                     string baseFileName = $"{pdfFileName}_{i + 1}";
                     string finalPath = GetUniqueFilePath(targetFolder, baseFileName, ".jpg");
 
                     // 呼叫 Pdfium 渲染原始尺寸
-                    using (var image = document.Render(i, renderWidth, renderHeight, true))
+                    
+                    using (var image = document.Render(i, renderWidth, renderHeight, targetDpi, targetDpi, PdfRenderFlags.Annotations))
                     {
                         image.Save(finalPath, System.Drawing.Imaging.ImageFormat.Jpeg);
                     }

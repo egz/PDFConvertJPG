@@ -1,21 +1,20 @@
 ﻿using PDFConvertJPG.Models;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace PDFConvertJPG.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
         private readonly PdfConverterModel _model = new PdfConverterModel();
+        private readonly ImageToPdfConverter _imageToPdfConverter = new ImageToPdfConverter();
 
         private const int MaxDegreeOfParallelism = 5;
 
         public ObservableCollection<FileItem> SelectedFiles { get; set; } = new ObservableCollection<FileItem>();
+
+        public bool IsPdfToJpg { get; set; } = true;
 
         private string _outputPath;
         public string OutputPath
@@ -37,29 +36,66 @@ namespace PDFConvertJPG.ViewModels
 
         public async Task ProcessConversionAsync()
         {
-            var toProcess = SelectedFiles.Where(f => f.IsChecked).Select(f => f.FilePath).ToList();
-            if (toProcess.Count == 0 || string.IsNullOrEmpty(OutputPath)) return;
+            var toProcess = SelectedFiles
+                .Where(f => f.IsChecked)
+                .Select(f => f.FilePath)
+                .ToList();
 
-            string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            using (SemaphoreSlim semaphore = new SemaphoreSlim(MaxDegreeOfParallelism))
+            if (toProcess.Count == 0 || string.IsNullOrEmpty(OutputPath))
+                return;
+
+            if (IsPdfToJpg)
             {
-                var tasks = new List<Task>();
-                foreach (var file in toProcess)
+                string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                using (SemaphoreSlim semaphore =
+                       new SemaphoreSlim(MaxDegreeOfParallelism))
                 {
-                    await semaphore.WaitAsync();
-                    tasks.Add(Task.Run(() =>
+                    var tasks = new List<Task>();
+
+                    foreach (var file in toProcess)
                     {
-                        try
+                        await semaphore.WaitAsync();
+
+                        tasks.Add(Task.Run(() =>
                         {
-                            _model.ConvertPdfToJpg(file, OutputPath, timestamp);
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    }));
+                            try
+                            {
+                                _model.ConvertPdfToJpg(
+                                    file,
+                                    OutputPath,
+                                    timestamp);
+                            }
+                            finally
+                            {
+                                semaphore.Release();
+                            }
+                        }));
+                    }
+
+                    await Task.WhenAll(tasks);
                 }
-                await Task.WhenAll(tasks);
+            }
+            else
+            {
+                string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                string targetFolder = Path.Combine(
+                    OutputPath,
+                    timestamp);
+
+                Directory.CreateDirectory(targetFolder);
+
+                string outputFile = Path.Combine(
+                    targetFolder,
+                    "Images.pdf");
+
+                await Task.Run(() =>
+                {
+                    _imageToPdfConverter.ConvertJpgsToPdf(
+                        toProcess,
+                        outputFile);
+                });
             }
         }
     }
